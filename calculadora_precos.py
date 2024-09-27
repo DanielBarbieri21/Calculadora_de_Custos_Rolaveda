@@ -29,41 +29,49 @@ def calcular_precos():
         taxa_fixa_ml = float(entry_taxa_fixa_ml.get() or 0)
         margem_contribuicao = float(entry_margem_contribuicao.get() or 0) / 100
 
-        # Valor de Custo: (Preço de custo + IPI + ST + DIFAL + Frete) * 1.1
-        valor_custo = (preco_custo + preco_custo * ipi + preco_custo * st + preco_custo * difal + frete) * 1.1
+        # Calcular o valor de custo
+        valor_custo = (preco_custo + (preco_custo * ipi) + (preco_custo * st) + (preco_custo * difal) + frete) * 1.1
 
-        # Preço de Venda: (Custo + Taxa Fixa) / (1 - Comissão ML - Margem de Contribuição - Simples)
-        preco_venda = (valor_custo + taxa_fixa_ml) / (1 - comissao_ml - margem_contribuicao - simples)
+        # Calcular o preço de venda
+        preco_venda = (valor_custo + taxa_fixa_ml) / (1 - simples - comissao_ml - margem_contribuicao)
 
-        # Lucro Líquido: Preço de Venda - Custo - (Comissão ML * Preço Venda) - (Margem * Preço Venda) - Taxa Fixa
-        lucro_liquido = preco_venda - valor_custo - comissao_ml * preco_venda - margem_contribuicao * preco_venda - taxa_fixa_ml
+        # Calcular o lucro líquido
+        lucro_liquido = (
+            preco_venda 
+            - valor_custo 
+            - (simples * preco_venda) 
+            - (comissao_ml * preco_venda) 
+            - taxa_fixa_ml
+        )
+
+        # Calcular a margem de contribuição
+        margem_contribuicao_resultado = (lucro_liquido / preco_venda) * 100 if preco_venda > 0 else 0
 
         # Exibir os resultados
         resultado_valor_custo['text'] = f"Valor de Custo: R${valor_custo:.2f}"
         resultado_preco_venda['text'] = f"Preço de Venda: R${preco_venda:.2f}"
         resultado_lucro_liquido['text'] = f"Lucro Líquido: R${lucro_liquido:.2f}"
+        resultado_margem_contribuicao['text'] = f"Margem de Contribuição: {margem_contribuicao_resultado:.2f}%"
 
     except ZeroDivisionError:
-        # Caso a margem de contribuição seja 100%, evitar a divisão por zero
         messagebox.showerror("Erro de Cálculo", "A margem de contribuição não pode ser 100%.")
+
     except ValueError:
-        # Quando algum valor de entrada não for numérico
         resultado_valor_custo['text'] = ""
         resultado_preco_venda['text'] = ""
         resultado_lucro_liquido['text'] = ""
+        resultado_margem_contribuicao['text'] = ""
 
 # Função para processar os inputs da interface e calcular os valores automaticamente
 def processar(*args):
     try:
         calcular_precos()
     except ValueError:
-        # Ignorar entradas inválidas enquanto o usuário digita
-        pass
+        pass  # Ignorar entradas inválidas enquanto o usuário digita
 
 # Configuração da janela principal
 root = tk.Tk()
-root.title("Calculadora de Preços e Lucro")
-root.geometry("800x600")  # Definir um tamanho fixo para a janela
+root.title("Calculadora de Preço e Lucro")
 
 # Carregar a imagem de fundo
 image_path = resource_path("SO IMPORTADOS.jpg")
@@ -106,55 +114,58 @@ taxa_fixa_ml_var.trace("w", processar)
 margem_contribuicao_var.trace("w", processar)
 
 # Configuração dos campos de entrada no canvas
-tk.Label(canvas, text="Preço de Custo com Impostos (R$):", bg='white').place(x=10, y=10)
+tk.Label(canvas, text="Preço Custo (R$):").place(x=10, y=10)
 entry_preco_custo = tk.Entry(canvas, textvariable=preco_custo_var)
 entry_preco_custo.place(x=250, y=10)
 
-tk.Label(canvas, text="IPI (%):", bg='white').place(x=10, y=40)
+tk.Label(canvas, text="IPI (%):").place(x=10, y=40)
 entry_ipi = tk.Entry(canvas, textvariable=ipi_var)
 entry_ipi.place(x=250, y=40)
 
-tk.Label(canvas, text="ST (%):", bg='white').place(x=10, y=70)
+tk.Label(canvas, text="ST (%):").place(x=10, y=70)
 entry_st = tk.Entry(canvas, textvariable=st_var)
 entry_st.place(x=250, y=70)
 
-tk.Label(canvas, text="DIFAL (%):", bg='white').place(x=10, y=100)
+tk.Label(canvas, text="DIFAL (%):").place(x=10, y=100)
 entry_difal = tk.Entry(canvas, textvariable=difal_var)
 entry_difal.place(x=250, y=100)
 
-tk.Label(canvas, text="Comissão Patrocínio (%):", bg='white').place(x=10, y=130)
+tk.Label(canvas, text="Comissão Patrocínio (%):").place(x=10, y=130)
 entry_comissao_patrocinio = tk.Entry(canvas, textvariable=comissao_patrocinio_var)
 entry_comissao_patrocinio.place(x=250, y=130)
 
-tk.Label(canvas, text="Frete (R$):", bg='white').place(x=10, y=160)
+tk.Label(canvas, text="Frete (R$):").place(x=10, y=160)
 entry_frete = tk.Entry(canvas, textvariable=frete_var)
 entry_frete.place(x=250, y=160)
 
-tk.Label(canvas, text="Simples Nacional (%):", bg='white').place(x=10, y=190)
+tk.Label(canvas, text="Simples (%):").place(x=10, y=190)
 entry_simples = tk.Entry(canvas, textvariable=simples_var)
 entry_simples.place(x=250, y=190)
 
-tk.Label(canvas, text="Comissão Mercado Livre (%):", bg='white').place(x=10, y=220)
+tk.Label(canvas, text="Comissão ML (%):").place(x=10, y=220)
 entry_comissao_ml = tk.Entry(canvas, textvariable=comissao_ml_var)
 entry_comissao_ml.place(x=250, y=220)
 
-tk.Label(canvas, text="Taxa Fixa ML + Frete (R$):", bg='white').place(x=10, y=250)
+tk.Label(canvas, text="Taxa Fixa ML + Frete (R$):").place(x=10, y=250)
 entry_taxa_fixa_ml = tk.Entry(canvas, textvariable=taxa_fixa_ml_var)
 entry_taxa_fixa_ml.place(x=250, y=250)
 
-tk.Label(canvas, text="Margem de Contribuição (%):", bg='white').place(x=10, y=280)
+tk.Label(canvas, text="Margem de Contribuição (%):").place(x=10, y=280)
 entry_margem_contribuicao = tk.Entry(canvas, textvariable=margem_contribuicao_var)
 entry_margem_contribuicao.place(x=250, y=280)
 
-# Labels para exibir os resultados
-resultado_valor_custo = tk.Label(canvas, text="", bg='white')
-resultado_valor_custo.place(x=10, y=320)
+# Labels para exibir os resultados com cores específicas
+resultado_valor_custo = tk.Label(canvas, text="", bg="yellow")
+resultado_valor_custo.place(x=10, y=310)
 
-resultado_preco_venda = tk.Label(canvas, text="", bg='white')
-resultado_preco_venda.place(x=10, y=350)
+resultado_preco_venda = tk.Label(canvas, text="", bg="green")
+resultado_preco_venda.place(x=10, y=340)
 
-resultado_lucro_liquido = tk.Label(canvas, text="", bg='white')
-resultado_lucro_liquido.place(x=10, y=380)
+resultado_lucro_liquido = tk.Label(canvas, text="", bg="pink")
+resultado_lucro_liquido.place(x=10, y=370)
 
-# Iniciar a interface
+resultado_margem_contribuicao = tk.Label(canvas, text="", bg="lightblue")
+resultado_margem_contribuicao.place(x=10, y=400)
+
+# Executar a interface
 root.mainloop()
