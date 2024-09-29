@@ -29,8 +29,8 @@ def calcular_precos():
         taxa_fixa_ml = float(entry_taxa_fixa_ml.get() or 0)
         margem_contribuicao = float(entry_margem_contribuicao.get() or 0) / 100
 
-        # Calcular o valor de custo
-        valor_custo = (preco_custo + (preco_custo * ipi) + (preco_custo * st) + (preco_custo * difal) + frete) * 1.1
+        # Calcular o valor de custo incluindo a comissão de patrocínio
+        valor_custo = (preco_custo + (preco_custo * ipi) + (preco_custo * st) + (preco_custo * difal) + frete + (preco_custo * comissao_patrocinio)) * 1.1
 
         # Calcular o preço de venda
         preco_venda = (valor_custo + taxa_fixa_ml) / (1 - simples - comissao_ml - margem_contribuicao)
